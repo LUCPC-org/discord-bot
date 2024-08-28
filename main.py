@@ -4,14 +4,22 @@ import discord
 import logging
 import aiosqlite
 import platform
+import sys
+import json
 
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
+from helpers import startup
 # from database import DatabaseManager
 
 intents = discord.Intents().default()
 
-GUILD_ID = "620730579712999444"
+if not os.path.isfile(f"{os.path.realpath(os.path.dirname(__file__))}/config.json"):
+    sys.exit("'config.json' not found! Please add it and try again.")
+else:
+    with open(f"{os.path.realpath(os.path.dirname(__file__))}/config.json") as file:
+        config = json.load(file)
+
 
 class LoggingFormatter(logging.Formatter):
     # Colors
@@ -117,6 +125,7 @@ class DiscordBot(commands.Bot):
         )
         self.logger.info("-------------------")
         # await self.init_db()
+        self.config = config
         await self.load_cogs()
         # self.database = DatabaseManager(
         #     connection=await aiosqlite.connect(
@@ -127,10 +136,12 @@ class DiscordBot(commands.Bot):
         self.logger.info("Finished setting up the bot!")
     
     async def on_ready(self):
-        await self.change_presence(activity=discord.Game("with Kattis problems"))
-        guild = self.get_guild(int(GUILD_ID))
+        await self.change_presence(activity=discord.Game("Kattis problems"))
+        guild = await self.fetch_guild(self.config['guild-id'])
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
+
+        await startup.startup(self)
 
 load_dotenv()
 
