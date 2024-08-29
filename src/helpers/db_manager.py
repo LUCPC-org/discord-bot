@@ -6,7 +6,6 @@ DATABASE_PATH = (
     f"{os.path.realpath(os.path.dirname(__file__))}/../database/database.sqlite"
 )
 
-
 class UserAlreadyExists(Exception):
     "Raised when the user is already on the leaderboard"
 
@@ -33,7 +32,7 @@ class DatabaseManager:
 
         if exists:
             # not sure if i needed to do this or not
-            cursor.close()
+            await cursor.close()
             raise UserAlreadyExists()
 
         await self.connection.execute(
@@ -47,3 +46,12 @@ class DatabaseManager:
         )
 
         await self.connection.commit()
+    
+    async def get_leaderboard_entries(self) -> list[dict]:
+        """
+        returns a list of the leaderboard entries ordered by the difference of original_points and current_points
+        """
+        cursor = await self.connection.execute(
+            "SELECT * FROM leaderboard_entry ORDER BY current_points - original_points DESC"
+        )
+        return await cursor.fetchall()

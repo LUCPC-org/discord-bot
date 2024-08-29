@@ -34,7 +34,7 @@ class NotLibertyStudent(Exception):
 
 class SignUpModal(discord.ui.Modal):
     def __init__(self, bot: DiscordBot) -> None:
-        super().__init__(title="Points Gained Leaderboard - Sign Up")
+        super().__init__(title="Kattis Points Gained Leaderboard")
         self.bot = bot
 
         self.kattis_profile_url = TextInput(

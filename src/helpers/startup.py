@@ -21,23 +21,74 @@ async def startup(bot: DiscordBot):
         messages_json = json.load(file)
 
     leaderboard_sign_up_message_id = messages_json["leaderboard-sign-up-message-id"]
+    leaderboard_message_id = messages_json["leaderboard-message-id"]
 
-    message_id = leaderboard_sign_up_message_id
+    try:
+        await channel.fetch_message(leaderboard_message_id)
+    except discord.NotFound:
+        leaderboard_message_id = None
+
+    leaderboard_message_id = await setup_leaderboard_message(
+        bot, channel, leaderboard_message_id
+    )
+    bot.logger.info("Leaderboard message setup!")
+
+    messages_json["leaderboard-message-id"] = leaderboard_message_id
 
     try:
         await channel.fetch_message(leaderboard_sign_up_message_id)
     except discord.NotFound:
-        message_id = None
+        leaderboard_sign_up_message_id = None
 
     # sets the new message id
-    message_id = await setup_signup_message(bot, channel, message_id)
+    leaderboard_sign_up_message_id = await setup_signup_message(
+        bot, channel, leaderboard_sign_up_message_id
+    )
+    bot.logger.info("Leaderboard sign up message setup!")
 
-    messages_json["leaderboard-sign-up-message-id"] = message_id
+    messages_json["leaderboard-sign-up-message-id"] = leaderboard_sign_up_message_id
 
     with open("messages.json", "w") as file:
         json.dump(messages_json, file)
 
     bot.logger.info("Finished startup!")
+
+
+async def setup_leaderboard_message(
+    bot: DiscordBot, channel: discord.channel.TextChannel, message_id: int | None
+) -> int:
+    embed = discord.Embed()
+    embed.title = "Kattis Points Gained Leaderboard"
+    embed.color = 0x0A254E
+    names = []
+    points = []
+    users = await bot.database.get_leaderboard_entries()
+
+    # Reformats the users list to be more readable
+    users = [
+        {
+            "discord_id": user[0],
+            "kattis_username": user[1],
+            "original_points": user[2],
+            "current_points": user[3],
+        }
+        for user in users
+    ]
+
+    for user in users:
+        names.append(f"<@{user['discord_id']}>")
+        points.append(str(user["current_points"] - user["original_points"]))
+
+    embed.add_field(name="Name", value="\n".join(names), inline=True)
+    embed.add_field(name="Points Gained", value="\n".join(points), inline=True)
+
+    if message_id is None:
+        message = await channel.send(embed=embed)
+        return message.id
+    else:
+        message = await channel.fetch_message(message_id)
+        await message.edit(embed=embed)
+        return message.id
 
 
 # If message_id is None then we need to resend the message
@@ -47,7 +98,7 @@ async def setup_signup_message(
 ) -> int:
     if message_id is None:
         signup_embed = discord.Embed(
-            description="## Points gained leaderboard\nSign up to be included in the leaderboard and have a chance to win prizes!",
+            description="## Leaderboard Sign Up\nSign up to be included in the leaderboard and have a chance to win prizes!",
             color=0x0A254E,
         )
 
