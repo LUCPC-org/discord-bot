@@ -5,3 +5,8 @@ The new discord bot for the Competitive Programming Club at Liberty University
 ```
 pip install -r requirements.txt
 ```
+
+## running
+```
+python src/main.py
+```

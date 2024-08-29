@@ -2,13 +2,13 @@
 CREATE TABLE IF NOT EXISTS leaderboard_entry (
     discord_id TEXT PRIMARY KEY NOT NULL,
     kattis_username TEXT NOT NULL,
-    original_points INTEGER NOT NULL,
-    current_points INTEGER NOT NULL
-)
+    original_points REAL NOT NULL,
+    current_points REAL NOT NULL
+);
 
 /* This table is used if we want to make a graph for the user that will show their progress throughout the semester */
 CREATE TABLE IF NOT EXISTS score_snapshot (
-    score INTEGER NOT NULL,
+    score REAL NOT NULL,
     discord_id TEXT NOT NULL,
 
     /*
@@ -17,4 +17,4 @@ CREATE TABLE IF NOT EXISTS score_snapshot (
     */
     date TEXT NOT NULL,
     FOREIGN KEY(discord_id) REFERENCES leaderboard_entry(discord_id)
-)
+);
