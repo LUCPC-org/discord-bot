@@ -9,7 +9,7 @@ import json
 
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
-from helpers import startup, db_manager
+from helpers import startup, db_manager, kattis
 
 intents = discord.Intents().default()
 
@@ -84,6 +84,47 @@ class DiscordBot(commands.Bot):
         self.logger = logger
         self.database = None
 
+    @tasks.loop(minutes=2)
+    async def update_leaderboard(self) -> None:
+        users = await self.database.get_leaderboard_entries()
+        
+        for user in users:
+            kattis_username = user['kattis_username']
+            new_score = await kattis.get_kattis_score(kattis_username)
+            user['current_points'] = new_score
+
+        await self.database.update_leaderboard_entries(users)
+
+        channel = await bot.fetch_channel(self.config["leaderboard-channel-id"])
+
+        with open("messages.json", "r") as file:
+            messages_json = json.load(file)
+
+        leaderboard_message_id = messages_json["leaderboard-message-id"]
+
+        try:
+            await channel.fetch_message(leaderboard_message_id)
+        except discord.NotFound:
+            leaderboard_message_id = None
+
+        leaderboard_message_id = await startup.setup_leaderboard_message(
+            self, channel, leaderboard_message_id
+        )
+
+        messages_json["leaderboard-message-id"] = leaderboard_message_id
+
+        with open("messages.json", "w") as file:
+            json.dump(messages_json, file)
+
+        bot.logger.info("Leaderboard message updated!")
+
+        
+
+
+    @update_leaderboard.before_loop
+    async def before_update_task(self) -> None:
+        await self.wait_until_ready()
+
     async def init_db(self) -> None:
         async with aiosqlite.connect(
             f"{os.path.realpath(os.path.dirname(__file__))}/database/database.db"
@@ -121,6 +162,7 @@ class DiscordBot(commands.Bot):
             f"Running on: {platform.system()} {platform.release()} ({os.name})"
         )
         self.logger.info("-------------------")
+        self.update_leaderboard.start()
         await self.init_db()
         self.config = config
         await self.load_cogs()

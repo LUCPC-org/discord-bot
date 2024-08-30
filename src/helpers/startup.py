@@ -14,26 +14,26 @@ from helpers import kattis
 
 
 async def startup(bot: DiscordBot):
-    guild = bot.get_guild(int(bot.config["guild-id"]))
-    channel = await bot.fetch_channel(int(bot.config["leaderboard-channel-id"]))
+    guild = bot.get_guild(bot.config["guild-id"])
+    channel = await bot.fetch_channel(bot.config["leaderboard-channel-id"])
 
     with open("messages.json", "r") as file:
         messages_json = json.load(file)
 
     leaderboard_sign_up_message_id = messages_json["leaderboard-sign-up-message-id"]
-    leaderboard_message_id = messages_json["leaderboard-message-id"]
+    # leaderboard_message_id = messages_json["leaderboard-message-id"]
 
-    try:
-        await channel.fetch_message(leaderboard_message_id)
-    except discord.NotFound:
-        leaderboard_message_id = None
+    # try:
+    #     await channel.fetch_message(leaderboard_message_id)
+    # except discord.NotFound:
+    #     leaderboard_message_id = None
 
-    leaderboard_message_id = await setup_leaderboard_message(
-        bot, channel, leaderboard_message_id
-    )
-    bot.logger.info("Leaderboard message setup!")
+    # leaderboard_message_id = await setup_leaderboard_message(
+    #     bot, channel, leaderboard_message_id
+    # )
+    # bot.logger.info("Leaderboard message setup!")
 
-    messages_json["leaderboard-message-id"] = leaderboard_message_id
+    # messages_json["leaderboard-message-id"] = leaderboard_message_id
 
     try:
         await channel.fetch_message(leaderboard_sign_up_message_id)
@@ -64,20 +64,9 @@ async def setup_leaderboard_message(
     points = []
     users = await bot.database.get_leaderboard_entries()
 
-    # Reformats the users list to be more readable
-    users = [
-        {
-            "discord_id": user[0],
-            "kattis_username": user[1],
-            "original_points": user[2],
-            "current_points": user[3],
-        }
-        for user in users
-    ]
-
     for user in users:
         names.append(f"<@{user['discord_id']}>")
-        points.append(str(user["current_points"] - user["original_points"]))
+        points.append(str(round(user["current_points"] - user["original_points"], 1)))
 
     embed.add_field(name="Name", value="\n".join(names), inline=True)
     embed.add_field(name="Points Gained", value="\n".join(points), inline=True)
