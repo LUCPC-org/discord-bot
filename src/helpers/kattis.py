@@ -12,6 +12,8 @@ from bs4 import BeautifulSoup
 import re
 import aiohttp
 
+from helpers import startup
+
 
 
 class InvalidKattisURL(Exception):
@@ -80,7 +82,7 @@ class SignUpModal(discord.ui.Modal):
 
         embed = discord.Embed(
             title="Success",
-            description="You have been added to the leaderboard.\n **Note**: The leaderboard will refresh every day at 11:59 pm",
+            description="You have been added to the leaderboard.\n **Note**: You may not be on the leaderboard yet, but the leaderboard will refresh every 12 hours.",
             color=0x0A254E,
         )
 

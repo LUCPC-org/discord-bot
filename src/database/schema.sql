@@ -16,5 +16,14 @@ CREATE TABLE IF NOT EXISTS score_snapshot (
     * Date format: YYYY-MM-DD 
     */
     date TEXT NOT NULL,
-    FOREIGN KEY(discord_id) REFERENCES leaderboard_entry(discord_id)
+    FOREIGN KEY(discord_id) REFERENCES leaderboard_entry(discord_id),
+    PRIMARY KEY(discord_id, date)
+);
+
+/* This table is used to store the score of Liberty on a certain date
+* This is used to make a graph that shows the progress of Liberty throughout the semester
+*/
+CREATE TABLE IF NOT EXISTS liberty_score_snapshot (
+    score REAL NOT NULL,
+    date TEXT PRIMARY KEY NOT NULL
 );

@@ -2,3 +2,4 @@
 discord.log
 env/
 **/__pycache__/
+**/graph.png

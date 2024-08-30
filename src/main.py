@@ -83,6 +83,8 @@ class DiscordBot(commands.Bot):
         """
         self.logger = logger
         self.database = None
+        self.blue = 0x0A254E
+        self.red = 0x990000
 
     @tasks.loop(minutes=2)
     async def update_leaderboard(self) -> None:
@@ -91,6 +93,9 @@ class DiscordBot(commands.Bot):
         for user in users:
             kattis_username = user['kattis_username']
             new_score = await kattis.get_kattis_score(kattis_username)
+            
+            await self.database.insert_score_snapshot(user['discord_id'], new_score)
+            
             user['current_points'] = new_score
 
         await self.database.update_leaderboard_entries(users)
