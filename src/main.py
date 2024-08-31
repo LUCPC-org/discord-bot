@@ -86,7 +86,7 @@ class DiscordBot(commands.Bot):
         self.blue = 0x0A254E
         self.red = 0x990000
 
-    @tasks.loop(minutes=2)
+    @tasks.loop(hours=12)
     async def update_leaderboard(self) -> None:
         users = await self.database.get_leaderboard_entries()
         

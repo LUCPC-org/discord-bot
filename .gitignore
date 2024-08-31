@@ -3,3 +3,4 @@ discord.log
 env/
 **/__pycache__/
 **/graph.png
+./src/database/database.db
