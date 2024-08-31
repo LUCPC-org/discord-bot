@@ -15,7 +15,6 @@ import aiohttp
 from helpers import startup
 
 
-
 class InvalidKattisURL(Exception):
     "Raised when the user submits an invalid kattis link or invalid link in general"
 
@@ -131,3 +130,23 @@ async def get_kattis_score(username):
         return float(results[0])
     else:
         return None
+
+async def get_liberty_score():
+    url = f"https://open.kattis.com/universities/liberty.edu"
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            page_content = await response.text()
+
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    line = soup.findAll("span", class_="important_number")
+    if len(line) < 2:
+        return None
+    rank = str(line[0])
+    score = str(line[1])
+
+    rank = re.findall("[0-9.]+", rank)
+    score = re.findall("[0-9.]+", score)
+
+    return (int(rank[0]), float(score[0]))

@@ -123,6 +123,12 @@ class DiscordBot(commands.Bot):
 
         bot.logger.info("Leaderboard message updated!")
 
+        (rank, score) = await kattis.get_liberty_score()
+
+        await self.database.insert_liberty_score_snapshot(score, rank)
+
+        bot.logger.info("Liberty score updated!")
+
         
 
 

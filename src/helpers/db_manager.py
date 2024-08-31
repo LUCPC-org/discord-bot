@@ -124,3 +124,31 @@ class DatabaseManager:
             {"date": score[2], "score": score[0]} for score in scores
         ]
         return scores
+
+    async def insert_liberty_score_snapshot(self, score: float, rank: int) -> None:
+        """
+        This function will insert a score snapshot into the liberty_score_snapshot table
+
+        It will also insert the correct date into the date column
+        """
+        await self.connection.execute(
+            "INSERT OR IGNORE INTO liberty_score_snapshot(score, rank, date) VALUES (?, ?, date('now'))",
+            (score, rank),
+        )
+
+        await self.connection.commit()
+
+
+    async def get_liberty_scores_over_time(self) -> list[dict]:
+        """
+        This function will return a list of dictionaries where each dictionary contains the date and score of the user
+        """
+        cursor = await self.connection.execute(
+            "SELECT * FROM liberty_score_snapshot ORDER BY date ASC",
+        )
+
+        scores = await cursor.fetchall()
+        scores = [
+            {"date": score[2], "rank": score[1], "score": score[0]} for score in scores
+        ]
+        return scores
