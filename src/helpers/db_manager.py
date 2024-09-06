@@ -93,7 +93,7 @@ class DatabaseManager:
         It will ignore the insert if the user_id and score already exist in the table
         """
         await self.connection.execute(
-            "INSERT OR IGNORE INTO score_snapshot(discord_id, score, date) VALUES (?, ?, date('now'))",
+            "INSERT OR REPLACE INTO score_snapshot(discord_id, score, date) VALUES (?, ?, date('now'))",
             (user_id, score),
         )
 
@@ -132,7 +132,7 @@ class DatabaseManager:
         It will also insert the correct date into the date column
         """
         await self.connection.execute(
-            "INSERT OR IGNORE INTO liberty_score_snapshot(score, rank, date) VALUES (?, ?, date('now'))",
+            "INSERT OR REPLACE INTO liberty_score_snapshot(score, rank, date) VALUES (?, ?, date('now'))",
             (score, rank),
         )
 

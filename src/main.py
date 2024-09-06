@@ -86,7 +86,7 @@ class DiscordBot(commands.Bot):
         self.blue = 0x0A254E
         self.red = 0x990000
 
-    @tasks.loop(hours=12)
+    @tasks.loop(hours=2)
     async def update_leaderboard(self) -> None:
         users = await self.database.get_leaderboard_entries()
         
@@ -107,16 +107,18 @@ class DiscordBot(commands.Bot):
 
         leaderboard_message_id = messages_json["leaderboard-message-id"]
 
+        print(leaderboard_message_id)
         try:
             await channel.fetch_message(leaderboard_message_id)
         except discord.NotFound:
+            print('test')
             leaderboard_message_id = None
 
-        leaderboard_message_id = await startup.setup_leaderboard_message(
+        leaderboard_message_id_new = await startup.setup_leaderboard_message(
             self, channel, leaderboard_message_id
         )
 
-        messages_json["leaderboard-message-id"] = leaderboard_message_id
+        messages_json["leaderboard-message-id"] = leaderboard_message_id_new
 
         with open("messages.json", "w") as file:
             json.dump(messages_json, file)

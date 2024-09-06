@@ -7,13 +7,9 @@ if TYPE_CHECKING:
 import discord
 from discord.interactions import Interaction
 from discord.ui import button, Button, TextInput
-import requests
 from bs4 import BeautifulSoup
 import re
 import aiohttp
-
-from helpers import startup
-
 
 class InvalidKattisURL(Exception):
     "Raised when the user submits an invalid kattis link or invalid link in general"
@@ -48,8 +44,7 @@ class SignUpModal(discord.ui.Modal):
     async def on_error(self, interaction: Interaction, error: Exception) -> None:
         embed = discord.Embed(title="Error", color=0x990000)
         embed.description = error.args[0]
-
-        print(error)
+        
         await interaction.followup.send(embed=embed, ephemeral=True)
 
     async def on_submit(self, interaction: Interaction) -> None:
@@ -81,7 +76,7 @@ class SignUpModal(discord.ui.Modal):
 
         embed = discord.Embed(
             title="Success",
-            description="You have been added to the leaderboard.\n **Note**: You may not be on the leaderboard yet, but the leaderboard will refresh every 12 hours.",
+            description="You have been added to the leaderboard.\n **Note**: You may not be on the leaderboard yet, but the leaderboard will refresh every 2 hours.",
             color=0x0A254E,
         )
 
