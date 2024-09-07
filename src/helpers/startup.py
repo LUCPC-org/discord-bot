@@ -49,7 +49,7 @@ async def startup(bot: DiscordBot):
     messages_json["leaderboard-sign-up-message-id"] = leaderboard_sign_up_message_id
 
     with open("messages.json", "r") as file:
-        race_condition_json = json.loads(file)
+        race_condition_json = json.load(file)
 
     messages_json['leaderboard-message-id'] = race_condition_json['leaderboard-message-id']
     
