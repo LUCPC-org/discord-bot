@@ -82,6 +82,7 @@ class Graph(commands.Cog, name="graph"):
         ax2.set_ylabel("Rank", color=color2)
         ax2.plot(x_values, y_values_rank, color=color2, label="Rank")
         ax2.tick_params(axis='y', labelcolor=color2)
+        ax2.invert_yaxis()
 
         # Format the x-axis
         ax1.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
